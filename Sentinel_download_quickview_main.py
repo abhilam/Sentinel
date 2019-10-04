@@ -152,7 +152,6 @@ for i in xrange(len(Input['BoundryNme'])):
           plt.show()
           Identifier=ProductID['Identifier'][int(ID)]
           Decision     =raw_input('Do you think this is correct [Y or N]: ')
-        #while Decision=Y  
         os.remove('abc.tif');os.remove('aRaster_ABC.tif');os.remove('aRaster_ABC_cliped.tif')
         api.download(ProductID['Pr_Id'][int(ID)],Path_to_Download)
      
@@ -182,7 +181,6 @@ for i in xrange(len(Input['BoundryNme'])):
     # Go to each boundary folder create above (e.g Braden_SAFE)
     # DO the Sen2cor correction
     # COpy R10 Folder and rename based on Previous FOlder    print gdal.Open(InputFileTiff).ReadAsArray()[0].shape
-
     #and Copy to new Final Folder
     #############################################################################################################
     print Identifier
@@ -194,13 +192,11 @@ for i in xrange(len(Input['BoundryNme'])):
     #from sen2cor import L2A_Process
 	
     command                   = 'cd '+pathofDownloadScene+'; '+pathofSen2cor+'L2A_Process '+ SafeFoldr[0] +' --resolution 10'
-    #os.system(command)
     print command#dst_filename
-    #os.system(command)
+    os.system(command)
     # Now delete L1C
     L1Cfolder                 = glob.glob('*L1*.SAFE')
     #for fold in L1Cfolder:      shutil.rmtree(fold) # uncomment this if you want to delete uncalibrated folder
-    
     # Now go to R10 folder of L2A(calibrated) and convert .jp2 file to geotiff
     Calibrated_Safe_FileNme=Identifier.replace('L1C','L2A')
     
@@ -221,31 +217,15 @@ for i in xrange(len(Input['BoundryNme'])):
     
     NIR                         = glob.glob('*_B08*.tif')
     RED                         = glob.glob('*_B04*.tif')   
-    NIRData                     = gdal.Open(NIR[0])    
-
+    NIRData                     = gdal.Open(NIR[0])   
     N                           = NIRData.GetRasterBand(1).ReadAsArray()
     REDData                     = gdal.Open(RED[0])
     R                           = REDData.GetRasterBand(1).ReadAsArray()
     # Calculate NDVIjosh_lloyd
     NDVI                        = (N.astype(np.float64)-R.astype(np.float64))/(N.astype(np.float64)+R.astype(np.float64))
     NREC                        = YieldPotential(GrStage=4, NDVIRaster=NDVI)*(PartialFactorProductivity()/NUEAdj())
-    
     dst_filename='NRec_EntireRaster.tif'
     GdalWrite(NRecArray=NREC,InputFileTiff=NIR[0],DistFileTiff=dst_filename)
-    """
-    dst_filename                = 'NRec_EntireRaster.tif'
-    arr                         = NIRData.ReadAsArray()
-    x_pixels                    = arr.shape[0]  # number of pixels in x
-    y_pixels                    = arr.shape[0]   # number of pixels in y
-    trans                       = NIRData.GetGeoTransform()#'pathof the folder where you want this image to be'
-    proj                        = NIRData.GetProjection()
-    driver                      = gdal.GetDriverByName('GTiff')
-    Outdata                     = driver.Create(str(dst_filename),x_pixels, y_pixels, 1,gdal.GDT_Float64)
-    Outdata.SetGeoTransform(trans)
-    Outdata.SetProjection(proj)
-    Outdata.GetRasterBand(1).WriteArray(NREC.astype(float))
-    Outdata                     = None
-    """
     
     # Now copy shapefile to R10m folder and clip 
     shapefiles                  =glob.glob(PathofBoundries+'/'+JsonFileName.split('.')[0]+'*')
