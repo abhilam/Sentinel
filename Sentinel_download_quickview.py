@@ -135,7 +135,7 @@ def GdalWrite(NRecArray,InputFileTiff,DistFileTiff):
 #################################Main program Begins 
 os.chdir('/home/abhishes/Desktop/Abhi/Varimax_FB') # This is the directory where you have Input boundaries data from all producers
 UsrName='abhilam' # this is for Sentinnel username and password
-Password='Abhinju1'
+Password='' # Create sentinnel account and use password.
 # Sentinnel API
 api = SentinelAPI(user=UsrName, password=Password,api_url='https://scihub.copernicus.eu/dhus')
 
