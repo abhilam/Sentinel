@@ -1,0 +1,35 @@
+###########################################
+# Author: Abhishes lamsal
+# Email: abhilam@ksu.edu
+# Year : @2018
+# Kansas State University, Department Of Agronomy
+# contact: abhilam@ksu.edu
+# Purpose: calculate yield potential difference
+
+######################################## N-Recommendation ##############################
+# Take growth Stage and NDVI RASTER (clipped) and compute N recomendation
+########################################################################################
+def YieldPotential(GrStage,NDVIRaster,Yp_Thresh=120):
+    # GrStage= growth stage feeks stages 
+    # NDVIRaster= Numpy array with NDVI value
+    # Yp_Thresh= Yield potential Threshold from users.
+    # return 
+    RedNDVI=NDVIRaster
+    if GrStage==4:
+        Yp=155.13*RedNDVI -4.4012        
+        YpCheck=126.09*RedNDVI -27.304
+        Yp[Yp>Yp_Thresh]=Yp_Thresh
+            
+        YpDiff=Yp-YpCheck
+    elif GrStage >=6 and GrStage <=10:
+        Yp=158.64 * RedNDVI -36.625
+        Yp[Yp>Yp_Thresh]=Yp_Thresh
+        YpCheck=113.59*RedNDVI -21.641
+        YpDiff=Yp-YpCheck
+    return(YpDiff)
+
+def PartialFactorProductivity():
+  return(0.8)
+
+def NUEAdj():
+  return (0.5)
