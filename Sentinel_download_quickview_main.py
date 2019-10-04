@@ -33,73 +33,9 @@ from PIL import Image
 import sys
 
 from obtain_sentinnel_product import ObtainProduct_sentinel
-
-# This module convert shapefile to Geojson which is needed later to clip images
-def shapetogeojson(Inshp):
-    # Inshp= name of shapefile in string "name"
-    shapeinput   = str(Inshp)
-    reader       = shapefile.Reader(shapeinput)
-    fields       = reader.fields[1:]
-    field_names  = [field[0] for field in fields]
-    buffer       = []
-    for sr in reader.shapeRecords():
-        atr      = dict(zip(field_names, sr.record))
-        geom     = sr.shape.__geo_interface__
-        buffer.append(dict(type="Featureimport gdal", \
-                    geometry = geom, properties=atr)) 
-   # write the GeoJSON file
-    geojson      = open(Inshp[:-4]+".geojson", "w")
-    geojson.write(dumps({"type": "FeatureCollection",\
-                        "features": buffer}, indent=2) + "\n")
-    geojson.close()
-    return
-    
-######################################## N-Recommendation ##############################
-# Take growth Stage and NDVI RASTER (clipped) and compute N recomendation
-########################################################################################
-def YieldPotential(GrStage,NDVIRaster):
-    RedNDVI=NDVIRaster
-    Yp_Thresh=120 # This number should be pulled in from my farms
-    if GrStage==4:
-        Yp=155.13*RedNDVI -4.4012        
-        YpCheck=126.09*RedNDVI -27.304
-        Yp[Yp>Yp_Thresh]=Yp_Thresh
-            
-        YpDiff=Yp-YpCheck
-    elif GrStage >=6 and GrStage <=10:
-        Yp=158.64 * RedNDVI -36.625
-        Yp[Yp>Yp_Thresh]=Yp_Thresh
-        YpCheck=113.59*RedNDVI -21.641
-        YpDiff=Yp-YpCheck
-    return(YpDiff)
-
-def PartialFactorProductivity():
-  return(0.8)
-
-def NUEAdj():
-  return (0.5)
-
-
-
-# Function to write Geotiff with adding prjection and geotransformation
-def GdalWrite(NRecArray,InputFileTiff,DistFileTiff):
-    # NRecArray= Array of N recommendation to be written
-    # InputFileTiff= Tiff File name whose projection and geotransformation will be taken to write 
-    # DistFileTiff=  Destination file name to be written
-    x_pixel,y_pixel=gdal.Open(InputFileTiff).ReadAsArray().shape
-    #print x_pixel,y_pixel
-    trans=gdal.Open(InputFileTiff).GetGeoTransform()
-    proj=gdal.Open(InputFileTiff).GetProjection()
-    #print trans,proj
-    driver                      = gdal.GetDriverByName('GTiff')
-    Outdata                     = driver.Create(str(DistFileTiff),x_pixel, y_pixel, 1,gdal.GDT_Float64)
-    Outdata.SetGeoTransform(trans)
-    Outdata.SetProjection(proj)
-    Outdata.GetRasterBand(1).WriteArray(NRecArray.astype(float))
-    Outdata                     = None
-    return DistFIle
-
-
+from shape2geojson import shapetogeojson 
+from yieldpotential_algorithm import YieldPotential, PartialFactorProductivity, NUEAdj
+from write_geotiff import GdalWrite
 
 
 #################################Main program Begins 
