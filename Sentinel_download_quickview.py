@@ -32,37 +32,7 @@ from cStringIO import StringIO
 from PIL import Image
 import sys
 
-
-
-# search by polygon, time, and SciHub query keywords
-
-def ObtainProduct_sentinel(JsonFile,Sdate,Edate,Cldmin,Cldmax):
-    # This will extract the sentinnel product and stored in Dictionary as SceneID and Date when Image collected
-    # JsonFile = Name of the geojson file of Area of Interest
-    # Sdate    = Start date (eg. 20150101 YYYYMMDD)
-    # Edate    = End Date (eg. 20160101 YYYYMMDD)
-    CldCoverrange      = '['+str(Cldmin) + ' TO '+ str(Cldmax)+']' 
-    footprints         = geojson_to_wkt(read_geojson(JsonFile))
-    #print footprints
-    products           = api.query(footprints, (Sdate,Edate), platformname = 'Sentinel-2', cloudcoverpercentage = CldCoverrange)
-    a                  = api.to_geodataframe(products)
-    #print a
-    # Collect all the data available and its date and product ID
-    Result             = {'Pr_Id':[],'Datetime':[],'Geometry':[],'Identifier':[]}
-    if len(products)==0:
-        print 'No scene available in given condition'
-    else:
-        print 'Found '+ str(len(products)) + ' Scene\n',"Here is your list of Dates available and its product id"
-    counter            = 0
-    for i in xrange(len(a)):# in products:
-        Result['Pr_Id'].append(a['uuid'][i])
-        Result['Datetime'].append(a['beginposition'][i])
-        Result['Geometry'].append(a['geometry'][i])
-        Result['Identifier'].append(a['identifier'][i])
-        print counter,' ==> ',a['beginposition'][i],' ==> ',a['uuid'][i],' ==> ',a['cloudcoverpercentage'][i]
-        counter+=1
-    return Result
-
+from obtain_sentinnel_product import ObtainProduct_sentinel
 
 # This module convert shapefile to Geojson which is needed later to clip images
 def shapetogeojson(Inshp):
